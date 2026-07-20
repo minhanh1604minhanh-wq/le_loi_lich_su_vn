@@ -117,6 +117,7 @@
     <audio id="blow-audio" src="blow.mp3" preload="auto"></audio>
 
     <div id="top-controls"><button id="lang-toggle-btn" class="top-btn">English</button><button id="restart-btn" class="top-btn">Bắt đầu lại</button></div>
+    
     <model-viewer id="myModel" src="le_loi.glb" auto-rotate rotation-per-second="-12deg" camera-orbit="0deg 75deg 140%" camera-target="0m 0m 0m" shadow-intensity="1.5" bounds="tight" min-field-of-view="10deg" max-field-of-view="45deg" min-camera-orbit="auto auto 5%" max-camera-orbit="auto auto 200%"></model-viewer>
 
     <div id="intro-screen">
@@ -231,7 +232,6 @@
     </div>
 
     <script>
-        // ================= TỪ ĐIỂN LÊ LỢI =================
         const dict = {
             vi: { title: "MÔ HÌNH LÊ LỢI", startBtn: "Bắt Đầu Trải Nghiệm", restartBtn: "Bắt đầu lại", detailBtn: "Lê Thái Tổ", guideBtn: "Hướng Dẫn", qaBtn: "AI Hỏi Đáp", mvBtn: "Đa Vũ Trụ", roleplayBtn: "Nhập Vai", closeBtn: "Đóng Lại", secretText: '"Hoàn gươm thần, dựng thái bình!"', dustTitle: "Bức mật thư khởi nghĩa bị thời gian vùi lấp.", dustSub: "Thổi vào micro hoặc quét đi lớp bụi ấy.", brushBtn: "🧹 Dùng chổi quét", qaPrompts: ["Khởi nghĩa Lam Sơn?", "Hội thề Lũng Nhai?", "Sự tích Rùa Vàng?"], mvPrompts: ["Nếu Lê Lợi không nhận được gươm thần?", "Nếu trận Chi Lăng thất bại?"] },
             en: { title: "EMPEROR LE LOI", startBtn: "Start", restartBtn: "Restart", detailBtn: "Emperor Le", guideBtn: "Guide", qaBtn: "AI Q&A", mvBtn: "Multiverse", roleplayBtn: "Roleplay", closeBtn: "Close", secretText: '"Return the sword, forge the peace!"', dustTitle: "The uprising secret letter is covered in dust.", dustSub: "Blow into the mic or sweep it away.", brushBtn: "🧹 Use Brush", qaPrompts: ["Lam Son uprising?", "Lung Nhai oath?", "Golden Turtle legend?"], mvPrompts: ["What if he didn't find the magic sword?", "What if Chi Lang battle failed?"] }
@@ -253,7 +253,6 @@
 
         window.onload = () => { let savedName = localStorage.getItem('leloi_player_name'); if(savedName) playerNameInput.value = savedName; };
 
-        // ================= XỬ LÝ CLICK BẮT ĐẦU =================
         startBtn.addEventListener('click', async () => {
             if(playerNameInput.value.trim() !== "") { playerName = playerNameInput.value.trim(); localStorage.setItem('leloi_player_name', playerName); }
             scrollOverlay.style.display = 'flex'; scrollOverlay.style.opacity = '1';
@@ -262,9 +261,9 @@
             introScreen.style.opacity = '0'; setTimeout(() => { introScreen.style.display = 'none'; startParchmentSequence(); }, 800);
         });
 
-        // ================= HIỆU ỨNG BỤI =================
         const scrollOverlay = document.getElementById('scroll-overlay'); const dustCanvas = document.getElementById('dust-canvas'); const particleCanvas = document.getElementById('particle-canvas'); const ctx = dustCanvas.getContext('2d', { willReadFrequently: true }); const pCtx = particleCanvas.getContext('2d'); const instructionBox = document.getElementById('instruction-box'); const secretText = document.getElementById('secret-text'); const brushBtn = document.getElementById('brush-btn');
         let isRevealed = false; let isBrushingMode = false; let blowAnimationFrame; let particles = []; 
+        
         function renderRealisticDust() { dustCanvas.width = dustCanvas.offsetWidth; dustCanvas.height = dustCanvas.offsetHeight; particleCanvas.width = dustCanvas.width; particleCanvas.height = dustCanvas.height; ctx.fillStyle = '#5c4d3c'; ctx.fillRect(0, 0, dustCanvas.width, dustCanvas.height); const imgData = ctx.getImageData(0, 0, dustCanvas.width, dustCanvas.height); const data = imgData.data; for (let i = 0; i < data.length; i += 4) { const noise = (Math.random() - 0.5) * 60; data[i] = Math.max(0, Math.min(255, 92 + noise)); data[i+1] = Math.max(0, Math.min(255, 77 + noise)); data[i+2] = Math.max(0, Math.min(255, 60 + noise)); } ctx.putImageData(imgData, 0, 0); for (let i = 0; i < 50; i++) { ctx.beginPath(); ctx.arc(Math.random() * dustCanvas.width, Math.random() * dustCanvas.height, Math.random() * 40, 0, Math.PI * 2); ctx.fillStyle = `rgba(50, 40, 30, ${Math.random() * 0.5})`; ctx.fill(); } ctx.lineJoin = ctx.lineCap = 'round'; }
         function spawnParticles(x, y, count, isBlowing) { for(let i=0; i<count; i++) { particles.push({ x: x + (Math.random() - 0.5) * 40, y: y + (Math.random() - 0.5) * 40, vx: (Math.random() - 0.5) * (isBlowing ? 15 : 6), vy: (Math.random() - 0.5) * (isBlowing ? 15 : 6) - (isBlowing ? 2 : 0), life: 1.0, decay: Math.random() * 0.05 + 0.02, size: Math.random() * 3 + 1.5, color: `rgba(180, 150, 110, ` }); } }
         function updateParticles() { pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height); for(let i = particles.length - 1; i >= 0; i--) { let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= p.decay; if(p.life <= 0) { particles.splice(i, 1); } else { pCtx.fillStyle = p.color + p.life + `)`; pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); pCtx.fill(); } } if (!isRevealed || particles.length > 0) requestAnimationFrame(updateParticles); }
@@ -286,31 +285,15 @@
         
         restartBtn.addEventListener('click', () => { window.location.reload(); });
 
-        // ================= HỆ THỐNG QUẢN LÝ CỬA SỔ & DỪNG TÁC VỤ AI =================
-       // ================= HỆ THỐNG QUẢN LÝ CỬA SỔ & DỪNG TÁC VỤ AI =================
         function closeAllPopups() {
             document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
-            overlayDetail.classList.remove('active'); 
-            overlayGuide.classList.remove('active');
-            detailBtn.classList.remove('active-state'); 
-            guideBtn.classList.remove('active-state'); 
-            qaBtn.classList.remove('active-state'); 
-            mvBtn.classList.remove('active-state'); 
-            roleplayBtn.classList.remove('active-state');
-            body.classList.remove('info-active'); 
-            stopAllAITasks();
-            
-            // === ĐÂY LÀ 2 DÒNG ĐƯỢC THÊM VÀO ĐỂ SỬA LỖI KẸT CHỮ ===
-            detailBtn.textContent = dict[selectedLang].detailBtn;
-            guideBtn.textContent = dict[selectedLang].guideBtn;
-            // =====================================================
-
-            if (isMainExperienceStarted && audioVn.paused && audioEn.paused) { 
-                if (selectedLang === 'vi') audioVn.play().catch(e=>e); 
-                else audioEn.play().catch(e=>e); 
-            }
+            overlayDetail.classList.remove('active'); overlayGuide.classList.remove('active');
+            detailBtn.classList.remove('active-state'); guideBtn.classList.remove('active-state'); qaBtn.classList.remove('active-state'); mvBtn.classList.remove('active-state'); roleplayBtn.classList.remove('active-state');
+            body.classList.remove('info-active'); stopAllAITasks();
+            if (isMainExperienceStarted && audioVn.paused && audioEn.paused) { if (selectedLang === 'vi') audioVn.play().catch(e=>e); else audioEn.play().catch(e=>e); }
         }
-        window.closeAllPopups = closeAllPopups;
+        window.closeAllPopups = closeAllPopups; 
+
         function stopAllAITasks() { 
             if (currentTTSAudio) { currentTTSAudio.pause(); currentTTSAudio.src = ""; } 
             if (typingInterval) { clearInterval(typingInterval); typingInterval = null; } 
@@ -329,7 +312,6 @@
         document.getElementById('qa-input').addEventListener('focus', () => { setTimeout(() => document.getElementById('qa-input').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); });
         document.getElementById('mv-input').addEventListener('focus', () => { setTimeout(() => document.getElementById('mv-input').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); });
 
-        // ================= CƠ CHẾ THANH TIẾN ĐỘ (%) =================
         function startProgressBar(containerId, barId, textId, timeInSeconds) { 
             if (progressHideTimeout) { clearTimeout(progressHideTimeout); progressHideTimeout = null; }
             document.getElementById(containerId).style.display = 'block'; 
@@ -354,18 +336,15 @@
 
         function renderSuggestions(arraySug, containerId, inputId, endpointMode) { const container = document.getElementById(containerId); container.innerHTML = ''; arraySug.forEach(sug => { let btn = document.createElement('button'); btn.className = 'prompt-chip'; btn.textContent = sug; btn.onclick = (e) => { e.stopPropagation(); document.getElementById(inputId).value = sug; sendToAI(sug, endpointMode); }; container.appendChild(btn); }); }
 
-        // ================= GỬI BÁO CÁO VỀ GIÁO VIÊN (ĐÃ GẮN NHÃN LÊ LỢI) =================
         async function sendReportToTeacher(type, directHistoryArray = null) {
             let targetHistory = [];
             if (directHistoryArray) { targetHistory = directHistoryArray; } else { targetHistory = type.includes('Đa Vũ Trụ') ? mvHistory : rpHistory; }
             const dataToSend = { playerName: playerName, history: targetHistory, type: type };
             try { 
-                // !!! LƯU Ý: HÃY THAY ĐỔI ĐƯỜNG LINK NÀY THÀNH LINK RENDER THỰC TẾ CỦA DỰ ÁN LÊ LỢI !!!
-                await fetch('https://backend-api-le-loi.onrender.com/save-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataToSend) }); 
+                await fetch('https://api-le-loi.onrender.com/save-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataToSend) }); 
             } catch (err) { console.error("Lỗi gửi báo cáo:", err); }
         }
 
-        // ================= AI HỎI ĐÁP & ĐA VŨ TRỤ =================
         qaBtn.addEventListener('click', (e) => { e.stopPropagation(); closeAllPopups(); audioVn.pause(); audioEn.pause(); qaBtn.classList.add('active-state'); document.getElementById('qa-panel').classList.add('active'); document.getElementById('qa-status').textContent = `Chào ${playerName}, bạn cần tra cứu lịch sử gì?`; document.getElementById('qa-input').value = ""; document.getElementById('qa-result').textContent = "Nhấn nút Mic hoặc gõ câu hỏi vào ô bên dưới."; renderSuggestions(dict[selectedLang].qaPrompts, 'qa-prompts', 'qa-input', 'ask'); });
         document.getElementById('qa-send-btn').addEventListener('click', (e) => { e.stopPropagation(); const txt = document.getElementById('qa-input').value.trim(); if(txt) sendToAI(txt, 'ask'); });
         document.getElementById('qa-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') document.getElementById('qa-send-btn').click(); });
@@ -396,8 +375,7 @@
             try {
                 const payload = isMV ? { history: mvHistory, scenario: question, lang: selectedLang } : { question: question, lang: selectedLang };
                 
-                // !!! LƯU Ý: HÃY THAY ĐỔI ĐƯỜNG LINK NÀY THÀNH LINK RENDER THỰC TẾ CỦA DỰ ÁN LÊ LỢI !!!
-                const response = await fetch(`https://backend-api-le-loi.onrender.com/${mode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: myAbortSignal });
+                const response = await fetch(`https://api-le-loi.onrender.com/${mode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: myAbortSignal });
                 const data = await response.json(); 
                 
                 if (myAbortSignal.aborted) return; 
@@ -428,7 +406,6 @@
                         }, 50);
                     } else { renderSuggestions(data.suggestions, sugCon, inputId, mode); fetchAndPlayTTS(data.reply, 'onyx', statBox, resBox, "Đang truyền tin...", myAbortSignal); }
                 } else { 
-                    // GỬI BÁO CÁO CÓ NHÃN (LÊ LỢI)
                     let qaRecord = [ { role: "user", content: question }, { role: "assistant", content: data.reply } ];
                     sendReportToTeacher("Hỏi Đáp (Lê Lợi)", qaRecord);
                     
@@ -440,7 +417,6 @@
             }
         }
 
-        // ================= TRÒ CHƠI NHẬP VAI =================
         roleplayBtn.addEventListener('click', (e) => {
             e.stopPropagation(); closeAllPopups(); audioVn.pause(); audioEn.pause();
             roleplayBtn.classList.add('active-state'); document.getElementById('roleplay-panel').classList.add('active');
@@ -456,8 +432,7 @@
             if (rpAbortController) rpAbortController.abort(); 
             rpAbortController = new AbortController();
             
-            // !!! LƯU Ý: HÃY THAY ĐỔI ĐƯỜNG LINK NÀY THÀNH LINK RENDER THỰC TẾ CỦA DỰ ÁN LÊ LỢI !!!
-            const response = await fetch('https://backend-api-le-loi.onrender.com/roleplay', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ history: rpHistory, turn: rpTurn, lang: selectedLang }), signal: rpAbortController.signal });
+            const response = await fetch('https://api-le-loi.onrender.com/roleplay', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ history: rpHistory, turn: rpTurn, lang: selectedLang }), signal: rpAbortController.signal });
             stopProgressBar('rp-progress', 'rp-bar', 'rp-text'); 
             return await response.json();
         }
@@ -504,7 +479,6 @@
             await fetchAndPlayTTS(data.npcDialogue, 'alloy', null, document.getElementById('rp-npc-text'), "", rpAbortController.signal);
         }
 
-        // ================= HÀM XỬ LÝ ÂM THANH & CHỮ CHUNG =================
         async function fetchAndPlayTTS(textToSpeak, voiceType, statusElement, textElement, speakingMsg, abortSignal = null) {
             return new Promise(async (resolve) => {
                 if (!textToSpeak) { resolve(); return; }
@@ -520,8 +494,7 @@
                 let prefix = ""; if (textElement && textElement.id === 'rp-npc-text') { prefix = (voiceType === 'onyx') ? `<span style="color:#e5c158; font-weight:bold;">Bình Định Vương:</span> ` : `<span style="color:#a894c2; font-weight:bold;">NPC:</span> `; }
 
                 try {
-                    // !!! LƯU Ý: HÃY THAY ĐỔI ĐƯỜNG LINK NÀY THÀNH LINK RENDER THỰC TẾ CỦA DỰ ÁN LÊ LỢI !!!
-                    const response = await fetch('https://backend-api-le-loi.onrender.com/speak', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: cleanText, voiceId: voiceType }), signal: fetchSignal });
+                    const response = await fetch('https://api-le-loi.onrender.com/speak', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: cleanText, voiceId: voiceType }), signal: fetchSignal });
                     if (fetchSignal.aborted) { resolve(); return; }
                     if (!response.ok) { fallbackTypeWriter(textToSpeak, textElement, prefix, resolve, fetchSignal); return; }
 
@@ -565,7 +538,6 @@
 
         window.addEventListener('click', (e) => { if (!e.target.closest('.overlay-layer') && !e.target.closest('.game-panel') && !e.target.closest('#main-ui') && !e.target.closest('#top-controls') && !e.target.closest('#intro-screen')) { closeAllPopups(); } });
 
-        // ================= XUẤT BÁO CÁO =================
         function exportPDF(contentHTML, fileName) {
             const printContent = `
                 <div style="padding: 30px; font-family: 'Times New Roman', serif; color: #000; background: #fff; width: 100%; max-width: 800px; margin: auto;">
@@ -601,7 +573,6 @@
             exportPDF(html, 'Hoc_Ba_Lich_Su_Le_Loi.pdf'); 
         });
 
-        // ================= TÍNH NĂNG NHẬN DIỆN GIỌNG NÓI =================
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
             const recognition = new SpeechRecognition(); recognition.continuous = false; recognition.interimResults = true; 
